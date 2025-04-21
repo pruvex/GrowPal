@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "28843841750",
+    "project_id": "grow-pal-3dsx9v",
+    "storage_bucket": "grow-pal-3dsx9v.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28843841750:android:4a39c17bfd2539e4df9177",
+        "android_client_info": {
+          "package_name": "com.mycompany.growpal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCthweUAECWH95KXG4KpXtKryBSv_Ummuk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28843841750:android:c63f0ca2fb95abe3df9177",
+        "android_client_info": {
+          "package_name": "de.Pruvex.growpal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCthweUAECWH95KXG4KpXtKryBSv_Ummuk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
