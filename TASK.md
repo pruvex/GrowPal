@@ -3,11 +3,11 @@
 Dieses Dokument trackt die aktiven Aufgaben, den Backlog und erreichte Meilensteine, basierend auf einer modularen Struktur.
 
 ## Modul 1: App-Struktur und Grundeinstellungen (MVP)
-*   [ ] Android Studio Projekt erstellen (Kotlin, Jetpack Compose).
-*   [ ] Grundlegende Navigation implementieren (Untere Navigationsleiste: Home, Räume, Tagebuch, Einstellungen).
-*   [ ] Startbildschirm (Home) mit Platzhaltern für Module erstellen.
+*   [X] Android Studio Projekt erstellen (Kotlin, Jetpack Compose). *(Erledigt am 21.04.2025)*
+*   [X] Grundlegende Navigation implementieren (Untere Navigationsleiste: Home, Räume, Tagebuch, Einstellungen). *(Erledigt am 21.04.2025)*
+*   [X] Startbildschirm (Home) mit Platzhaltern für Module erstellen.
 *   [ ] Firebase-Projekt einrichten (Auth: E-Mail/Passwort; Firestore-DB).
-*   [ ] Basis-Mehrsprachigkeit (DE/EN String-Ressourcen).
+*   [X] Basis-Mehrsprachigkeit (DE/EN String-Ressourcen).
 *   [ ] Basis-UI-Theme (Farben, Schriftarten).
 *   [ ] Nutzerlevel-Auswahl beim Start (Anfänger/Fortgeschritten/Profi - nur speichern, Auswirkung später).
 
@@ -82,3 +82,4 @@ Dieses Dokument trackt die aktiven Aufgaben, den Backlog und erreichte Meilenste
 
 ## Meilensteine (Abgeschlossen)
 *   *(Aktuelles Datum)*: Projekt initialisiert.
+*   *(21.04.2025)*: Grundlegende Navigation implementiert.
