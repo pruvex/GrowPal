@@ -1,38 +1,35 @@
+<!-- D:\Android\Projekte\GrowPal\GrowPal\app\src\main\res\values\strings.xml -->
 <resources>
+    <string name="logout">Logout</string>
     <string name="app_name">GrowPal</string>
 
-    <!-- AuthScreen -->
-    <string name="auth_welcome">Welcome to GrowPal!</string>
-    <string name="auth_email_label">Email</string>
-    <string name="auth_password_label">Password</string>
-    <string name="auth_login_button">Login</string>
-    <string name="auth_register_button">Register</string>
-    <string name="auth_forgot_password">Forgot Password?</string>
-    <string name="auth_logging_in">Logging in…</string>
-    <string name="auth_registering">Registering…</string>
-    <string name="auth_login_error">Login failed. Please check your credentials.</string>
-    <string name="auth_registration_error">Registration failed. Please try again.</string>
-    <string name="auth_email_empty">Email cannot be empty.</string>
-    <string name="auth_password_empty">Password cannot be empty.</string>
-    <string name="auth_password_short">Password must be at least 6 characters.</string>
-
-    <!-- Bottom Navigation -->
+    <!-- Navigation Bottom Bar -->
     <string name="bottom_nav_home">Home</string>
     <string name="bottom_nav_rooms">Rooms</string>
     <string name="bottom_nav_diary">Diary</string>
     <string name="bottom_nav_settings">Settings</string>
 
-    <!-- SettingsScreen -->
-    <string name="settings_language_title">Language</string>
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_language_label">Language</string>
     <string name="settings_language_german">German</string>
     <string name="settings_language_english">English</string>
     <string name="settings_logout_button">Logout</string>
-    <string name="settings_select_language_label">Select App Language:</string>
 
-    <!-- NEU / Ergänzt -->
-    <string name="go_to_settings_button">Go to Settings (Example)</string>
-    <string name="placeholder_content_for">Content for %1$s goes here.</string>
+    <!-- Auth Screen -->
+    <string name="auth_email_label">Email</string>
+    <string name="auth_password_label">Password</string>
+    <string name="auth_login_button">Login</string>
+    <string name="auth_register_button">Register</string>
+    <string name="auth_or_text">OR</string>
+    <!-- *** NEU HINZUGEFÜGT *** -->
+    <string name="login_welcome">Welcome!</string>
 
-    <!-- Füge hier alle weiteren Strings hinzu, die du brauchst -->
+    <!-- Placeholder Screen -->
+    <string name="placeholder_content_for">Placeholder Content for %1$s</string>
+    <string name="go_to_settings_button">Go to Settings</string>
+
+    <!-- General -->
+    <string name="error_generic">An error occurred.</string>
 
 </resources>

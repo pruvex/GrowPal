@@ -1,51 +1,35 @@
+<!-- D:\Android\Projekte\GrowPal\GrowPal\app\src\main\res\values-en\strings.xml -->
 <resources>
-    <string name="app_name">GRowPal</string>
+    <string name="logout">Logout</string>
+    <string name="app_name">GrowPal</string>
 
-    <!-- Bottom Navigation -->
+    <!-- Navigation Bottom Bar -->
     <string name="bottom_nav_home">Home</string>
     <string name="bottom_nav_rooms">Rooms</string>
     <string name="bottom_nav_diary">Diary</string>
-    <string name="bottom_nav_settings">Settings</string> <!-- Can also use title_settings -->
+    <string name="bottom_nav_settings">Settings</string>
 
-    <!-- Login Screen -->
-    <string name="auth_welcome">Welcome to GRowPal!</string> <!-- KORRIGIERT -->
-    <string name="login_email_label">Email</string>
-    <string name="login_password_label">Password</string>
-    <string name="login_button">Login</string>
-    <string name="login_register_prompt">Don\'t have an account?</string>
-    <string name="login_register_link">Register</string>
-    <string name="login_error_invalid_credentials">Invalid credentials.</string>
-    <string name="login_error_unknown">Unknown login error.</string>
-    <string name="login_error_email_empty">Email cannot be empty.</string>
-    <string name="login_error_password_empty">Password cannot be empty.</string>
-
-    <!-- Registration Screen -->
-    <string name="register_title">Register</string>
-    <string name="register_email_label">Email</string>
-    <string name="register_password_label">Password (min. 6 characters)</string>
-    <string name="register_confirm_password_label">Confirm Password</string>
-    <string name="register_button">Register</string>
-    <string name="register_login_prompt">Already have an account?</string>
-    <string name="register_login_link">Login</string>
-    <string name="register_error_password_mismatch">Passwords do not match.</string>
-    <string name="register_error_password_short">Password is too short (min. 6 characters).</string>
-    <string name="register_error_email_exists">This email address is already in use.</string>
-    <string name="register_error_unknown">Unknown registration error.</string>
-    <string name="register_success">Registration successful! You can now log in.</string>
-
-    <!-- Language Settings -->
-    <string name="language_german">German</string>
-    <string name="language_english">English</string>
-
-    <!-- Strings for Settings -->
-    <string name="settings_language_title">Language</string>
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_language_label">Language</string>
     <string name="settings_language_german">German</string>
     <string name="settings_language_english">English</string>
-    <string name="settings_language_note">The app might restart after selection to apply the language.</string>
-    <string name="settings_logout">Logout</string>
-    <string name="title_settings">Settings</string>
+    <string name="settings_logout_button">Logout</string>
+
+    <!-- Auth Screen -->
+    <string name="auth_email_label">Email</string>
+    <string name="auth_password_label">Password</string>
+    <string name="auth_login_button">Login</string>
+    <string name="auth_register_button">Register</string>
+    <string name="auth_or_text">OR</string>
+    <string name="login_welcome">Welcome!</string>
+
+    <!-- Placeholder Screen -->
+    <string name="placeholder_content_for">Placeholder Content for %1$s</string>
+    <!-- *** KORRIGIERT *** -->
+    <string name="go_to_settings_button">Go to Settings</string>
 
     <!-- General -->
-    <string name="placeholder_text">Placeholder Text</string>
+    <string name="error_generic">An error occurred.</string>
 
 </resources>

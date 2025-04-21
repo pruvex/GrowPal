@@ -20,14 +20,15 @@ import de.Pruvex.growpal.ui.theme.GrowPalTheme // Dein App-Theme
 @Composable
 fun AuthScreen(
     onLoginClick: (String, String) -> Unit,
-    onRegisterClick: (String, String) -> Unit // Behalte dies, falls du einen Registrierungs-Button hast
+    onRegisterClick: (String, String) -> Unit, // Behalte dies, falls du einen Registrierungs-Button hast
+    modifier: Modifier = Modifier
 ) {
     // rememberSaveable ist oft besser als remember, um den Zustand bei Drehungen etc. zu behalten
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
@@ -41,7 +42,7 @@ fun AuthScreen(
             value = email,
             onValueChange = { email = it },
             // --- Korrigierte String-IDs ---
-            label = { Text(stringResource(id = R.string.login_email_label)) },
+            label = { Text(stringResource(id = R.string.auth_email_label)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -51,7 +52,7 @@ fun AuthScreen(
             value = password,
             onValueChange = { password = it },
             // --- Korrigierte String-IDs ---
-            label = { Text(stringResource(id = R.string.login_password_label)) },
+            label = { Text(stringResource(id = R.string.auth_password_label)) },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
@@ -72,7 +73,7 @@ fun AuthScreen(
                     // dass Felder nicht leer sein dürfen
                 }
             }) {
-                Text(stringResource(id = R.string.login_button))
+                Text(stringResource(id = R.string.auth_login_button))
             }
             // Prüfe, ob du diesen Button hier brauchst oder die Registrierung woanders stattfindet
             Button(onClick = {
@@ -83,7 +84,7 @@ fun AuthScreen(
                     // Optional: Fehlermeldung
                 }
             }) {
-                Text(stringResource(id = R.string.register_button))
+                Text(stringResource(id = R.string.auth_register_button))
             }
         }
         // Hier könnten noch TextButtons für "Registrieren" oder "Passwort vergessen" hinzukommen

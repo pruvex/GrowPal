@@ -2,7 +2,7 @@ package de.Pruvex.growpal
 
 import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
+// ContextWrapper wird nicht mehr benötigt
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -28,22 +28,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen // Import für Splashscreen
+import androidx.compose.ui.unit.dp // Import für dp hinzugefügt
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen // Import für Splashscreen hinzugefügt
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import de.Pruvex.growpal.ui.auth.AuthScreen // Sicherstellen, dass AuthScreen importiert ist
-import de.Pruvex.growpal.ui.auth.AuthViewModel // Import für AuthViewModel
-import de.Pruvex.growpal.ui.settings.SettingsScreen // Sicherstellen, dass SettingsScreen importiert ist
+import de.Pruvex.growpal.ui.auth.AuthScreen
+import de.Pruvex.growpal.ui.auth.AuthViewModel
+import de.Pruvex.growpal.ui.auth.AuthState
+import de.Pruvex.growpal.ui.settings.SettingsScreen
 import de.Pruvex.growpal.ui.theme.GrowPalTheme
-import de.Pruvex.growpal.util.LocaleHelper // Import von LocaleHelper
+import de.Pruvex.growpal.util.LocaleHelper
 
-// Definition der Screens für die Navigation
+// Definition der Screens für die Navigation (unverändert)
 sealed class Screen(val route: String, val labelResId: Int, val icon: ImageVector) {
-    object Auth : Screen("auth", R.string.app_name, Icons.Filled.AccountCircle) // Kein Label für Auth in BottomBar nötig
+    object Auth : Screen("auth", R.string.app_name, Icons.Filled.AccountCircle)
     object Home : Screen("home", R.string.bottom_nav_home, Icons.Filled.Home)
-    object Rooms : Screen("rooms", R.string.bottom_nav_rooms, Icons.Filled.AccountCircle) // Beispiel-Icon
-    object Diary : Screen("diary", R.string.bottom_nav_diary, Icons.Filled.DateRange) // Beispiel-Icon
+    object Rooms : Screen("rooms", R.string.bottom_nav_rooms, Icons.Filled.AccountCircle)
+    object Diary : Screen("diary", R.string.bottom_nav_diary, Icons.Filled.DateRange)
     object Settings : Screen("settings", R.string.bottom_nav_settings, Icons.Filled.Settings)
 }
 
@@ -52,47 +54,36 @@ class MainActivity : ComponentActivity() {
     // ViewModel mit activity-ktx holen
     private val authViewModel: AuthViewModel by viewModels()
 
-    // Wichtig: attachBaseContext wird VOR onCreate aufgerufen
-    override fun attachBaseContext(newBase: Context) {
-        Log.d("MainActivity", "attachBaseContext called")
-        val persistedLanguage = LocaleHelper.getPersistedLocale(newBase)
-        Log.d("MainActivity", "Persisted language in attachBaseContext: $persistedLanguage")
-        // Korrekter Aufruf von wrapContext mit zwei Argumenten
-        val localeUpdatedContext: ContextWrapper = LocaleHelper.wrapContext(newBase, persistedLanguage)
-        super.attachBaseContext(localeUpdatedContext)
-        Log.d("MainActivity", "attachBaseContext finished. Current config: ${resources.configuration.locales[0]}")
-    }
-
+    // --- KEINE attachBaseContext Methode hier! ---
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d("MainActivity", "onCreate called")
+        // Sprache beim App-Start anwenden (via AppCompatDelegate)
+        LocaleHelper.updateAppLocale(LocaleHelper.getPersistedLocale(this))
+        Log.d("MainActivity", "Initial Locale set via AppCompatDelegate in onCreate")
 
-        // Splashscreen installieren (benötigt core-splashscreen dependency)
+        super.onCreate(savedInstanceState)
+        Log.d("MainActivity", "onCreate called after super.onCreate")
+
+        // Splashscreen installieren
         installSplashScreen()
 
-        // Sprache beim Start setzen (redundant, wenn attachBaseContext funktioniert, aber schadet nicht für Logs)
-        val currentLanguage = LocaleHelper.getPersistedLocale(this)
-        Log.d("MainActivity", "Persisted language in onCreate: $currentLanguage")
-        // LocaleHelper.updateAppLocale(currentLanguage) // Nicht hier, wird durch recreate() nach Wahl getriggert
-
-        Log.d("MainActivity", "Current config in onCreate: ${resources.configuration.locales[0]}")
-
+        Log.d("MainActivity", "Current config in onCreate after initial setup: ${resources.configuration.locales.get(0)}") // .get(0) für neuere APIs
 
         setContent {
-            // Aktuellen Auth-Status beobachten
             val authState by authViewModel.authState.collectAsState()
             val navController = rememberNavController()
 
-            // Start-Ziel basierend auf Authentifizierungsstatus bestimmen
-            // Wir müssen den initialen Status berücksichtigen, bevor LaunchedEffect greift
-            val startDestination = remember(authState.isAuthenticated) {
-                if (authState.isAuthenticated) Screen.Home.route else Screen.Auth.route
+            // Navigation nach erfolgreichem Login
+            LaunchedEffect(authState) {
+                if (authState is AuthState.Success) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                }
             }
-            Log.d("MainActivity", "Setting up NavHost. Initial Start destination: $startDestination")
 
             GrowPalTheme {
-                MainAppStructure(navController, authViewModel, startDestination, this)
+                MainAppStructure(navController, authViewModel, authState, this)
             }
         }
     }
@@ -103,64 +94,47 @@ class MainActivity : ComponentActivity() {
 fun MainAppStructure(
     navController: NavHostController,
     authViewModel: AuthViewModel,
-    startDestination: String,
-    context: Context // Context für LocaleHelper übergeben
+    authState: AuthState,
+    context: Context // Context für recreate benötigt
 ) {
-    val items = listOf(
-        Screen.Home,
-        Screen.Rooms,
-        Screen.Diary,
-        Screen.Settings
-    )
-    // Zustand für Sichtbarkeit der BottomBar basierend auf der Route
+    val items = listOf(Screen.Home, Screen.Rooms, Screen.Diary, Screen.Settings)
     var showBottomBar by remember { mutableStateOf(false) }
-    val authState by authViewModel.authState.collectAsState()
-
-    // Aktuelle Route beobachten, um BottomBar ein-/auszublenden
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val startDestination = if (authState is AuthState.Success) Screen.Home.route else Screen.Auth.route
 
     LaunchedEffect(currentRoute) {
         showBottomBar = items.any { it.route == currentRoute }
         Log.d("MainAppStructure", "Current route changed: $currentRoute, Show bottom bar: $showBottomBar")
     }
 
-    // Effekt, der auf Änderungen im Authentifizierungsstatus reagiert, um Navigation zu steuern
-    LaunchedEffect(authState.isAuthenticated, currentRoute) { // Auch currentRoute beobachten
-        Log.d("MainAppStructure", "AuthState or Route changed. IsAuthenticated: ${authState.isAuthenticated}, CurrentRoute: $currentRoute")
-        if (authState.isAuthenticated) {
-            // Wenn authentifiziert und aktuell auf Auth-Screen, navigiere zu Home
+    LaunchedEffect(authState, currentRoute) {
+        Log.d("MainAppStructure", "AuthState or Route changed. IsAuthenticated: ${authState is AuthState.Success}, CurrentRoute: $currentRoute")
+        if (authState is AuthState.Success) {
             if (currentRoute == Screen.Auth.route) {
                 Log.d("MainAppStructure", "Navigating to Home because authenticated and currently on Auth.")
                 navController.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Auth.route) { inclusive = true } // Auth-Screen aus Backstack entfernen
-                    launchSingleTop = true // Verhindert mehrfaches Starten von Home
+                    popUpTo(Screen.Home.route) { inclusive = true }
+                    launchSingleTop = true
                 }
             } else if (currentRoute == null && startDestination == Screen.Home.route) {
-                // Behandlung des initialen Starts, wenn bereits authentifiziert
                 Log.d("MainAppStructure", "Initial state is authenticated, ensuring Home is displayed.")
-                // Keine explizite Navigation nötig, da startDestination bereits Home ist
             }
         } else {
-            // Wenn nicht authentifiziert und aktuell NICHT auf Auth-Screen, navigiere zu Auth
             if (currentRoute != Screen.Auth.route) {
                 Log.d("MainAppStructure", "Navigating to Auth because not authenticated and not on Auth screen.")
                 navController.navigate(Screen.Auth.route) {
-                    // Alle anderen Screens aus dem Backstack entfernen
                     popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
-                    launchSingleTop = true // Verhindert mehrfaches Starten von Auth
+                    launchSingleTop = true
                 }
             } else if (currentRoute == null && startDestination == Screen.Auth.route) {
-                // Behandlung des initialen Starts, wenn nicht authentifiziert
                 Log.d("MainAppStructure", "Initial state is unauthenticated, ensuring Auth is displayed.")
-                // Keine explizite Navigation nötig, da startDestination bereits Auth ist
             }
         }
     }
 
     Scaffold(
         bottomBar = {
-            // Nur anzeigen, wenn auf einem der Haupt-Screens
             if (showBottomBar) {
                 NavigationBar {
                     items.forEach { screen ->
@@ -170,7 +144,7 @@ fun MainAppStructure(
                             selected = currentRoute == screen.route,
                             onClick = {
                                 Log.d("MainAppStructure", "Bottom nav clicked: ${screen.route}")
-                                if (currentRoute != screen.route) { // Verhindere Navigation zum selben Ziel
+                                if (currentRoute != screen.route) {
                                     navController.navigate(screen.route) {
                                         popUpTo(navController.graph.findStartDestination().id) {
                                             saveState = true
@@ -188,27 +162,37 @@ fun MainAppStructure(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = startDestination, // Dynamischer Startpunkt
-            modifier = Modifier.padding(innerPadding).fillMaxSize() // fillMaxSize hier empfohlen
+            startDestination = startDestination,
+            modifier = Modifier.padding(innerPadding).fillMaxSize()
         ) {
             composable(Screen.Auth.route) {
                 Log.d("MainAppStructure", "Rendering AuthScreen")
-                // AuthScreen erwartet onLoginClick und onRegisterClick
-                AuthScreen(
-                    onLoginClick = { email, password ->
-                        Log.d("MainAppStructure", "AuthScreen: onLoginClick called")
-                        authViewModel.loginUser(email, password)
-                        // Navigation erfolgt durch LaunchedEffect oben
-                    },
-                    onRegisterClick = { email, password ->
-                        Log.d("MainAppStructure", "AuthScreen: onRegisterClick called")
-                        Log.w("MainAppStructure", "Register button clicked, but no navigation/action defined yet.")
-                        // Hier ggf. zu Screen.Register.route navigieren oder ViewModel-Funktion aufrufen
+                var snackbarHostState = remember { SnackbarHostState() }
+
+                // Fehlerbehandlung
+                if (authState is AuthState.Error) {
+                    LaunchedEffect(authState) {
+                        snackbarHostState.showSnackbar(authState.message)
                     }
-                )
+                }
+
+                Scaffold(
+                    snackbarHost = { SnackbarHost(snackbarHostState) }
+                ) { padding ->
+                    AuthScreen(
+                        onLoginClick = { email, password ->
+                            Log.d("MainAppStructure", "AuthScreen: onLoginClick called")
+                            authViewModel.login(email, password)
+                        },
+                        onRegisterClick = { email, password ->
+                            Log.d("MainAppStructure", "AuthScreen: onRegisterClick called")
+                            authViewModel.register(email, password)
+                        },
+                        modifier = Modifier.padding(padding)
+                    )
+                }
             }
 
-            // --- Die anderen composable-Blöcke ---
             composable(Screen.Home.route) {
                 Log.d("MainAppStructure", "Rendering PlaceholderScreen for Home")
                 PlaceholderScreen("Home", navController)
@@ -224,17 +208,15 @@ fun MainAppStructure(
             composable(Screen.Settings.route) {
                 Log.d("MainAppStructure", "Rendering SettingsScreen")
                 SettingsScreen(
-                    onLogoutClick = {
-                        Log.d("MainAppStructure", "SettingsScreen: onLogoutClick called")
-                        authViewModel.logoutUser()
-                        // Navigation zurück zum Auth-Screen passiert im LaunchedEffect
+                    onLogout = {
+                        Log.d("MainAppStructure", "SettingsScreen: onLogout called")
+                        authViewModel.logout()
                     },
                     onLanguageSelected = { langCode ->
                         Log.d("MainAppStructure", "SettingsScreen: onLanguageSelected called with $langCode")
                         LocaleHelper.setLocale(context, langCode)
-                        // Wichtig: Activity neu erstellen, damit attachBaseContext wirkt
                         val currentActivity = context as? Activity
-                        currentActivity?.recreate() // Löst Neuladen mit neuer Locale aus
+                        currentActivity?.recreate()
                         Log.d("MainAppStructure", "Activity recreated after language change.")
                     }
                 )
@@ -244,43 +226,67 @@ fun MainAppStructure(
 }
 
 
-// Platzhalter für die Haupt-Screens
+// Platzhalter (unverändert)
 @Composable
 fun PlaceholderScreen(name: String, navController: NavHostController) {
     Box(modifier = Modifier.fillMaxSize()) {
         Text(
-            text = stringResource(id = R.string.placeholder_content_for, name), // Verwende String-Formatierung
+            text = stringResource(id = R.string.placeholder_content_for, name),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.align(androidx.compose.ui.Alignment.Center)
         )
-        // Beispiel-Button, um zu den Einstellungen zu navigieren
         Button(
             onClick = { navController.navigate(Screen.Settings.route) },
             modifier = Modifier
                 .align(androidx.compose.ui.Alignment.TopEnd)
-                .padding(16.dp)
+                .padding(16.dp) // dp import hinzugefügt
         ) {
             Text(stringResource(id = R.string.go_to_settings_button))
         }
     }
 }
 
-// --- Preview --- (Optional, aber hilfreich für die Design-Phase)
+@Composable
+fun BottomNavigationBar(
+    navController: NavHostController,
+    items: List<Screen>,
+    currentRoute: String?
+) {
+    NavigationBar {
+        items.forEach { item ->
+            NavigationBarItem(
+                icon = { Icon(item.icon, contentDescription = null) },
+                label = { Text(stringResource(id = item.labelResId)) },
+                selected = currentRoute == item.route,
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+    }
+}
 
-// Preview benötigt oft eine vereinfachte Umgebung ohne echte Abhängigkeiten
-@Preview(showBackground = true, locale = "de") // Locale für Preview setzen
+// --- Preview ---
+
+@Preview(showBackground = true, locale = "de")
 @Composable
 fun DefaultPreview() {
     GrowPalTheme {
         val navController = rememberNavController()
-        // Für Preview verwenden wir einen Dummy-AuthViewModel oder initialisieren ihn einfach
-        val previewAuthViewModel = AuthViewModel()
-        // Starten wir die Preview auf dem Home-Screen (simuliert eingeloggt)
-        MainAppStructure(navController, previewAuthViewModel, Screen.Home.route, androidx.compose.ui.platform.LocalContext.current)
+        val previewAuthViewModel = AuthViewModel() // Annahme: ViewModel hat leeren Konstruktor für Preview
+        MainAppStructure(
+            navController,
+            previewAuthViewModel,
+            AuthState.Success(null), // Für Preview: userId ist null
+            androidx.compose.ui.platform.LocalContext.current
+        )
     }
 }
 
-@Preview(showBackground = true, locale = "en") // Englische Preview
+@Preview(showBackground = true, locale = "en")
 @Composable
 fun AuthScreenPreview() {
     GrowPalTheme {

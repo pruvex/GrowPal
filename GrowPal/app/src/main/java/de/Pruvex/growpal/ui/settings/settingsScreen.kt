@@ -1,79 +1,81 @@
 package de.Pruvex.growpal.ui.settings
 
-import android.app.Activity
+// Imports bleiben gleich
+import android.app.Activity // Activity wird nicht mehr direkt benötigt, da recreate im Lambda in MainActivity ist
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalContext // Wird nicht mehr direkt benötigt, aber kann bleiben
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.Pruvex.growpal.R // Stelle sicher, dass der R-Import korrekt ist
-import de.Pruvex.growpal.util.LocaleHelper // Importiere deinen LocaleHelper
+// LocaleHelper wird hier nicht mehr direkt für setLocale benötigt, nur für String-Ressourcen
+// import de.Pruvex.growpal.util.LocaleHelper
 
 @Composable
-fun SettingsScreen(onLogout: () -> Unit) { // Logout-Callback hinzugefügt
-    val context = LocalContext.current
-    // Sicherstellen, dass der Context eine Activity ist, für recreate()
-    val activity = context as? Activity
+fun SettingsScreen(
+    onLogout: () -> Unit, // Logout-Callback
+    onLanguageSelected: (String) -> Unit // Lambda für Sprachauswahl
+) {
+    // val context = LocalContext.current // Wird nicht mehr benötigt
+    // val activity = context as? Activity // Wird nicht mehr benötigt
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.Start, // Linksbündig für Titel etc.
-        verticalArrangement = Arrangement.spacedBy(8.dp) // Kleinerer Abstand
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = stringResource(id = R.string.title_settings), // Verwende den allgemeinen Titel
-            style = MaterialTheme.typography.headlineMedium, // Etwas größer für den Screen-Titel
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 16.dp) // Zentriert und mehr Abstand nach unten
+            text = stringResource(id = R.string.settings_title),
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 16.dp)
         )
 
         // Sprachauswahl Sektion
         Text(
-            text = stringResource(id = R.string.settings_language_title),
-            style = MaterialTheme.typography.titleMedium // Titel für die Sektion
+            text = stringResource(id = R.string.settings_language_label),
+            style = MaterialTheme.typography.titleMedium
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth(), // Nimmt volle Breite
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally) // Zentriert mit Abstand
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
         ) {
             // Button für Deutsch
             Button(onClick = {
-                LocaleHelper.setLocale(context, "de")
-                activity?.recreate() // Activity neu starten
+                onLanguageSelected("de") // Rufe das übergebene Lambda auf
             }) {
-                Text(text = stringResource(id = R.string.settings_language_german)) // Verwende String Ressource
+                Text(text = stringResource(id = R.string.settings_language_german))
             }
 
             // Button für Englisch
             Button(onClick = {
-                LocaleHelper.setLocale(context, "en")
-                activity?.recreate() // Activity neu starten
+                onLanguageSelected("en") // Rufe das übergebene Lambda auf
             }) {
-                Text(text = stringResource(id = R.string.settings_language_english)) // Verwende String Ressource
+                Text(text = stringResource(id = R.string.settings_language_english))
             }
         }
         Text(
-            text = stringResource(id = R.string.settings_language_note),
+            text = stringResource(id = R.string.settings_language_label),
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp).align(Alignment.CenterHorizontally) // Hinweis zentriert unter Buttons
+            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp).align(Alignment.CenterHorizontally)
         )
 
 
         // Logout Sektion (Beispiel)
-        Divider() // Trennlinie
+        Divider()
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = onLogout, // Verwende den Callback
-            modifier = Modifier.align(Alignment.CenterHorizontally) // Zentriert
+            onClick = onLogout, // Verwende den Logout-Callback
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            Text(text = stringResource(id = R.string.settings_logout))
+            Text(text = stringResource(id = R.string.logout))
         }
 
         // Hier können später weitere Einstellungen hinzugefügt werden
