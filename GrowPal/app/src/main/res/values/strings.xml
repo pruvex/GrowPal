@@ -32,4 +32,5 @@
     <!-- General -->
     <string name="error_generic">An error occurred.</string>
 
+    <string name="welcome_headline">Willkommen bei GrowPal!</string>
 </resources>

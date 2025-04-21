@@ -1,17 +1,18 @@
-# Cascade Status Backup - 2025-04-21 23:27
+# Cascade Status Backup - 2025-04-22 00:53
 
 ## Aktuelles Problem
 
-Beim Starten der App im Emulator traten mehrfach "Binder transaction failure"-Fehler und System-Log-Warnungen auf. Es bestand der Verdacht, dass fehlende Berechtigungen oder der Zugriff auf Systemdienste (z.B. Bluetooth, Netzwerk) die Ursache sind.
+UI/Build-Probleme: Fehlende oder fehlerhafte Modifier-Imports, falsche onClick-Lambdas (null statt {}), fehlende String-Ressourcen und experimentelle Material3-Warnungen verhinderten einen erfolgreichen Build und eine konsistente UI.
 
 ## Bereits unternommene Schritte
-- Manifest um die Berechtigungen für Internet, Netzwerkstatus und Bluetooth ergänzt (Bluetooth nur optional).
-- Gezielte Logging-Ausgaben in der MainActivity hinzugefügt, um die Verfügbarkeit und Fehler beim Zugriff auf Systemdienste (PackageManager, Bluetooth, Connectivity, Binder) zu prüfen.
-- App gebaut und im Emulator gestartet. Die Log-Ausgaben zeigen, dass alle relevanten Systemdienste verfügbar sind und keine Exceptions auftreten. Die App startet und läuft stabil.
-- Die "Binder transaction failure"-Fehler traten im Zusammenhang mit der App nicht mehr auf bzw. sind als Emulator-Noise zu werten.
+- Alle Modifier- und Import-Probleme automatisiert behoben
+- onClick = null durch onClick = {} ersetzt (Buttons, NavigationBarItem, TopAppBar)
+- Fehlende String-Ressourcen ergänzt (z.B. welcome_headline)
+- Opt-In für ExperimentalMaterial3Api gesetzt, um Warnungen zu unterdrücken
+- Build erfolgreich durchgeführt, App startet und zeigt das neue UI/Logo korrekt an
 
 ## Nächster Schritt
-- App-Funktionen weiter testen und bei echten, reproduzierbaren Fehlern gezielt Log-Ausgaben analysieren oder weitere Diagnoseschritte einleiten.
-- Logging kann entfernt werden, sobald keine weiteren Systemdienst-Probleme auftreten.
+- Optional: Code weiter testen und weitere Features (z.B. Level-Auswahl, Splashscreen) implementieren
+- Backup in Git anlegen (Index und Commit)
 
-**Modul:** App-Initialisierung und Systemdienste
+**Modul:** MainActivity, UI-Komponenten, Ressourcen

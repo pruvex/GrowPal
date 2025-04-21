@@ -2,12 +2,14 @@ package de.Pruvex.growpal.ui.settings
 
 // Imports bleiben gleich
 import android.app.Activity // Activity wird nicht mehr direkt benötigt, da recreate im Lambda in MainActivity ist
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext // Wird nicht mehr direkt benötigt, aber kann bleiben
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.Pruvex.growpal.R // Stelle sicher, dass der R-Import korrekt ist
@@ -26,9 +28,18 @@ fun SettingsScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.Top),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Logo oben einfügen
+        Image(
+            painter = painterResource(id = R.drawable.growpal_logo),
+            contentDescription = stringResource(id = de.Pruvex.growpal.R.string.app_name),
+            modifier = Modifier
+                .size(120.dp)
+                .padding(top = 8.dp, bottom = 16.dp)
+                .align(Alignment.CenterHorizontally)
+        )
         Text(
             text = stringResource(id = R.string.settings_title),
             style = MaterialTheme.typography.headlineMedium,

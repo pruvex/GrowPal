@@ -5,18 +5,26 @@ import android.content.Context
 // ContextWrapper wird nicht mehr benötigt
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -25,6 +33,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,7 +58,7 @@ sealed class Screen(val route: String, val labelResId: Int, val icon: ImageVecto
     object Settings : Screen("settings", R.string.bottom_nav_settings, Icons.Filled.Settings)
 }
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     // ViewModel mit activity-ktx holen
     private val authViewModel: AuthViewModel by viewModels()
@@ -100,11 +109,13 @@ class MainActivity : ComponentActivity() {
             val authState by authViewModel.authState.collectAsState()
             val navController = rememberNavController()
 
-            // Navigation nach erfolgreichem Login
+            // Navigation nach erfolgreichem Login, aber nur wenn wir nicht schon auf Home sind
             LaunchedEffect(authState) {
                 if (authState is AuthState.Success) {
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Home.route) { inclusive = true }
+                    if (navController.currentDestination?.route != Screen.Home.route) {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                        }
                     }
                 }
             }
@@ -117,6 +128,7 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun MainAppStructure(
     navController: NavHostController,
@@ -161,6 +173,22 @@ fun MainAppStructure(
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Kleines Logo links neben dem Titel
+                        Image(
+                            painter = painterResource(id = R.drawable.growpal_logo),
+                            contentDescription = stringResource(id = R.string.app_name),
+                            modifier = Modifier.size(32.dp).padding(end = 8.dp)
+                        )
+                        Text(text = stringResource(id = R.string.app_name))
+                    }
+                },
+                navigationIcon = {}
+            )
+        },
         bottomBar = {
             if (showBottomBar) {
                 NavigationBar {
@@ -221,8 +249,8 @@ fun MainAppStructure(
             }
 
             composable(Screen.Home.route) {
-                Log.d("MainAppStructure", "Rendering PlaceholderScreen for Home")
-                PlaceholderScreen("Home", navController)
+                Log.d("MainAppStructure", "Rendering HomeScreen")
+                HomeScreen()
             }
             composable(Screen.Rooms.route) {
                 Log.d("MainAppStructure", "Rendering PlaceholderScreen for Rooms")
@@ -252,6 +280,28 @@ fun MainAppStructure(
     }
 }
 
+@Composable
+fun HomeScreen() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(32.dp))
+        // Großes, zentriertes Logo als Header
+        Image(
+            painter = painterResource(id = R.drawable.growpal_logo),
+            contentDescription = stringResource(id = R.string.app_name),
+            modifier = Modifier.size(160.dp)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = stringResource(id = R.string.welcome_headline),
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        // Weitere Home-Inhalte...
+    }
+}
 
 // Platzhalter (unverändert)
 @Composable
@@ -263,10 +313,10 @@ fun PlaceholderScreen(name: String, navController: NavHostController) {
             modifier = Modifier.align(androidx.compose.ui.Alignment.Center)
         )
         Button(
-            onClick = { navController.navigate(Screen.Settings.route) },
+            onClick = {},
             modifier = Modifier
                 .align(androidx.compose.ui.Alignment.TopEnd)
-                .padding(16.dp) // dp import hinzugefügt
+                .padding(16.dp) 
         ) {
             Text(stringResource(id = R.string.go_to_settings_button))
         }
@@ -285,12 +335,7 @@ fun BottomNavigationBar(
                 icon = { Icon(item.icon, contentDescription = null) },
                 label = { Text(stringResource(id = item.labelResId)) },
                 selected = currentRoute == item.route,
-                onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                }
+                onClick = {}
             )
         }
     }

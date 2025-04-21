@@ -17,9 +17,14 @@ object LocaleHelper {
 
     // Funktion zum Setzen der Sprache: Speichern und Anwenden
     fun setLocale(context: Context, languageCode: String) {
+        if (languageCode.isBlank()) {
+            Log.e(TAG, "setLocale: Leerer Sprachcode übergeben, Abbruch!")
+            return
+        }
         Log.d(TAG, "setLocale called with languageCode: $languageCode")
         persist(context, languageCode)
         updateAppLocale(languageCode)
+        logCurrentLocale(context, "setLocale")
         // Hinweis: recreate() der Activity muss von außen aufgerufen werden (z.B. in SettingsScreen)
     }
 
@@ -27,12 +32,20 @@ object LocaleHelper {
     fun getPersistedLocale(context: Context): String? {
         val prefs = getPrefs(context)
         val lang = prefs.getString(SELECTED_LANGUAGE, null)
+        if (lang.isNullOrBlank()) {
+            Log.w(TAG, "getPersistedLocale: Keine Sprache gespeichert, verwende System-Default: ${Locale.getDefault().language}")
+            return null
+        }
         Log.d(TAG, "getPersistedLocale returning: $lang")
         return lang
     }
 
     // Speichert die gewählte Sprache in SharedPreferences
     private fun persist(context: Context, languageCode: String) {
+        if (languageCode.isBlank()) {
+            Log.e(TAG, "persist: Leerer Sprachcode, NICHT gespeichert!")
+            return
+        }
         val prefs = getPrefs(context)
         prefs.edit().putString(SELECTED_LANGUAGE, languageCode).apply()
         Log.d(TAG, "Persisted language: $languageCode")
@@ -40,14 +53,17 @@ object LocaleHelper {
 
     // Wendet die Sprache auf die App via AppCompatDelegate an
     fun updateAppLocale(languageCode: String?) {
-        if (languageCode == null) {
-            Log.d(TAG, "updateAppLocale called with null, clearing app locales.")
+        if (languageCode.isNullOrBlank()) {
+            Log.d(TAG, "updateAppLocale called with null/blank, clearing app locales.")
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
             logCurrentAppCompatLocales("after clearing")
             return
         }
         Log.d(TAG, "updateAppLocale called with languageCode: $languageCode")
-        val locale = Locale(languageCode)
+        val locale = try { Locale(languageCode) } catch (e: Exception) {
+            Log.e(TAG, "Ungültiger Sprachcode in updateAppLocale: $languageCode", e)
+            Locale.getDefault()
+        }
         val localeList = LocaleListCompat.create(locale)
         Log.d(TAG, "Setting app locales to: ${localeList.toLanguageTags()}")
         AppCompatDelegate.setApplicationLocales(localeList)
@@ -81,19 +97,18 @@ object LocaleHelper {
     // --- NEU: Erstellt einen ContextWrapper mit der gesetzten Locale ---
     fun wrapContext(context: Context): Context {
         val savedLocaleCode = getPersistedLocale(context)
-        // Verwende die Standard-Sprache des Systems, wenn nichts gespeichert ist
         val languageCode = savedLocaleCode ?: Locale.getDefault().language
-        // Stelle sicher, dass wir einen gültigen Code haben (z.B. "en", "de")
         val validLanguageCode = if (languageCode.isNullOrEmpty()) Locale.getDefault().language else languageCode
-        val locale = Locale(validLanguageCode)
-        Locale.setDefault(locale) // Sicherstellen, dass die Default-Locale auch gesetzt ist
-
+        val locale = try { Locale(validLanguageCode) } catch (e: Exception) {
+            Log.e(TAG, "wrapContext: Ungültiger Sprachcode: $validLanguageCode", e)
+            Locale.getDefault()
+        }
+        Locale.setDefault(locale)
         val config: Configuration = context.resources.configuration
         config.setLocale(locale)
-        config.setLayoutDirection(locale) // Wichtig für Rechts-nach-Links-Sprachen
-
-        Log.d(TAG, "Wrapping context with locale: $validLanguageCode")
-        // Erstelle und gib den neuen Context mit der angepassten Konfiguration zurück
+        config.setLayoutDirection(locale)
+        Log.d(TAG, "Wrapping context with locale: $validLanguageCode | Context-Locale: ${config.locales.get(0).toLanguageTag()}")
+        logCurrentLocale(context, "wrapContext")
         return context.createConfigurationContext(config)
     }
 }

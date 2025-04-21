@@ -19,6 +19,15 @@ class AuthViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
 
+    init {
+        // Prüfe beim Start, ob User bereits eingeloggt ist
+        if (firebaseAuth.currentUser != null) {
+            _authState.value = AuthState.Success(firebaseAuth.currentUser?.uid)
+        } else {
+            _authState.value = AuthState.Idle
+        }
+    }
+
     fun login(email: String, password: String) {
         _authState.value = AuthState.Loading
         firebaseAuth.signInWithEmailAndPassword(email, password)
