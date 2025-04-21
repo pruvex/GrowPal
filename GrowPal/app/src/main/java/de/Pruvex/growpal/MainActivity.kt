@@ -57,6 +57,33 @@ class MainActivity : ComponentActivity() {
     // --- KEINE attachBaseContext Methode hier! ---
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // --- Systemdienste prüfen und loggen ---
+        try {
+            val pm = packageManager
+            Log.d("MainActivity", "PackageManager verfügbar: ${pm != null}")
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Fehler beim Zugriff auf PackageManager", e)
+        }
+        try {
+            val bluetooth = getSystemService(Context.BLUETOOTH_SERVICE)
+            Log.d("MainActivity", "Bluetooth-Service verfügbar: ${bluetooth != null}")
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Fehler beim Zugriff auf Bluetooth-Service", e)
+        }
+        try {
+            val connectivity = getSystemService(Context.CONNECTIVITY_SERVICE)
+            Log.d("MainActivity", "Connectivity-Service verfügbar: ${connectivity != null}")
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Fehler beim Zugriff auf Connectivity-Service", e)
+        }
+        try {
+            val binder = this as? android.os.Binder
+            Log.d("MainActivity", "Binder-Objekt verfügbar: ${binder != null}")
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Fehler beim Binder-Check", e)
+        }
+        // --- Ende Systemdienste-Check ---
+
         // Sprache beim App-Start anwenden (via AppCompatDelegate)
         LocaleHelper.updateAppLocale(LocaleHelper.getPersistedLocale(this))
         Log.d("MainActivity", "Initial Locale set via AppCompatDelegate in onCreate")

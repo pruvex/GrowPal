@@ -1,30 +1,17 @@
-# Cascade Status Backup - 2025-04-21 17:46
+# Cascade Status Backup - 2025-04-21 23:27
 
 ## Aktuelles Problem
-Gradle-Synchronisierungsfehler im GrowPal Android-Projekt:
-Plugin `org.jetbrains.kotlin.plugin.compose` (Version `1.5.8`) wird nicht gefunden, obwohl die Konfiguration korrekt zu sein scheint.
 
-**Fehlermeldung:** `Plugin [id: 'org.jetbrains.kotlin.plugin.compose', version: '1.5.8', apply: false] was not found in any of the following sources:`
+Beim Starten der App im Emulator traten mehrfach "Binder transaction failure"-Fehler und System-Log-Warnungen auf. Es bestand der Verdacht, dass fehlende Berechtigungen oder der Zugriff auf Systemdienste (z.B. Bluetooth, Netzwerk) die Ursache sind.
 
-## Bereits geprüfte Punkte
-*   Projekt-Level `build.gradle.kts`: Plugin-Deklaration ist korrekt (`alias(libs.plugins.kotlin.compose) apply false`).
-*   `settings.gradle.kts`: Repositories (`google()`, `mavenCentral()`, `gradlePluginPortal()`) sind im `pluginManagement`-Block vorhanden.
-*   `gradle/libs.versions.toml`: Versionen (`kotlin = "1.9.22"`, `kotlinComposeCompiler = "1.5.8"`) sind korrekt und kompatibel definiert. Das Plugin wird korrekt referenziert.
-*   Android Studio: Offline-Modus ist deaktiviert.
-*   Android Studio: `Invalidate Caches / Restart...` hat nicht geholfen.
-*   Netzwerk: Zugriff auf `https://repo.maven.apache.org/maven2/` funktioniert im Browser.
-*   Netzwerk: Kein Proxy-Server oder blockierende Drittanbieter-Firewall aktiv (laut User-Bestätigung).
-*   Gradle-Version: `8.11.1` (aktuell und kompatibel).
+## Bereits unternommene Schritte
+- Manifest um die Berechtigungen für Internet, Netzwerkstatus und Bluetooth ergänzt (Bluetooth nur optional).
+- Gezielte Logging-Ausgaben in der MainActivity hinzugefügt, um die Verfügbarkeit und Fehler beim Zugriff auf Systemdienste (PackageManager, Bluetooth, Connectivity, Binder) zu prüfen.
+- App gebaut und im Emulator gestartet. Die Log-Ausgaben zeigen, dass alle relevanten Systemdienste verfügbar sind und keine Exceptions auftreten. Die App startet und läuft stabil.
+- Die "Binder transaction failure"-Fehler traten im Zusammenhang mit der App nicht mehr auf bzw. sind als Emulator-Noise zu werten.
 
-## Nächste Schritte (Plan)
-Da ein hartnäckig beschädigter Gradle-Cache die wahrscheinlichste Ursache ist und der User Platz auf C: sparen möchte:
+## Nächster Schritt
+- App-Funktionen weiter testen und bei echten, reproduzierbaren Fehlern gezielt Log-Ausgaben analysieren oder weitere Diagnoseschritte einleiten.
+- Logging kann entfernt werden, sobald keine weiteren Systemdienst-Probleme auftreten.
 
-1.  **Gradle User Home verlagern:**
-    *   Umgebungsvariable `GRADLE_USER_HOME` wurde auf `D:\Android\.gradle` gesetzt.
-2.  **System-Neustart durchführen:** (Wird vom User jetzt gemacht).
-3.  **Alten Cache löschen:**
-    *   Den **kompletten** Ordner `C:\Users\<DeinBenutzername>\.gradle` löschen.
-4.  **Android Studio neu starten & Synchronisieren:**
-    *   Android Studio starten und das GrowPal-Projekt öffnen.
-    *   Geduldig warten, bis Gradle alle Abhängigkeiten und Plugins im neuen Verzeichnis `D:\Android\.gradle` neu heruntergeladen und aufgebaut hat (dies wird lange dauern).
-5.  **Ergebnis prüfen:** Überprüfen, ob der Gradle-Sync erfolgreich war und der Plugin-Fehler behoben ist.
+**Modul:** App-Initialisierung und Systemdienste
