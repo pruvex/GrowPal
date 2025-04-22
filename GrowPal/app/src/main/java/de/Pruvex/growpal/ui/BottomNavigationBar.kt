@@ -13,7 +13,7 @@ fun BottomNavigationBar(navController: NavController) {
     val currentRoute = navBackStackEntry.value?.destination?.route
 
     NavigationBar {
-        BottomNavItem.items.forEach { item ->
+        BottomNavItem.items.forEach { item: BottomNavItem ->
             NavigationBarItem(
                 icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label) },

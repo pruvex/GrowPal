@@ -38,6 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import de.Pruvex.growpal.ui.HomeScreen
+import de.Pruvex.growpal.ui.RoomsScreen
+import de.Pruvex.growpal.ui.DiaryScreen
+import de.Pruvex.growpal.ui.SettingsScreen
+import de.Pruvex.growpal.navigation.BottomNavItem
 import androidx.compose.ui.unit.dp // Import für dp hinzugefügt
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen // Import für Splashscreen hinzugefügt
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -109,9 +113,9 @@ class MainActivity : AppCompatActivity() {
             // Navigation nach erfolgreichem Login, aber nur wenn wir nicht schon auf Home sind
             LaunchedEffect(authState) {
                 if (authState is AuthState.Success) {
-                    if (navController.currentDestination?.route != Screen.Home.route) {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Home.route) { inclusive = true }
+                    if (navController.currentDestination?.route != BottomNavItem.Home.route) {
+                        navController.navigate(BottomNavItem.Home.route) {
+                            popUpTo(BottomNavItem.Home.route) { inclusive = true }
                         }
                     }
                 }
@@ -131,11 +135,11 @@ fun MainAppStructure(
     authState: AuthState,
     context: Context // Context für recreate benötigt
 ) {
-    val items = listOf(Screen.Home, Screen.Rooms, Screen.Diary, Screen.Settings)
+    val items = BottomNavItem.items
     var showBottomBar by remember { mutableStateOf(false) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val startDestination = if (authState is AuthState.Success) Screen.Home.route else Screen.Auth.route
+    val startDestination = if (authState is AuthState.Success) BottomNavItem.Home.route else "auth"
 
     LaunchedEffect(currentRoute) {
         showBottomBar = items.any { it.route == currentRoute }
@@ -145,23 +149,23 @@ fun MainAppStructure(
     LaunchedEffect(authState, currentRoute) {
         Log.d("MainAppStructure", "AuthState or Route changed. IsAuthenticated: ${authState is AuthState.Success}, CurrentRoute: $currentRoute")
         if (authState is AuthState.Success) {
-            if (currentRoute == Screen.Auth.route) {
+            if (currentRoute == "auth") {
                 Log.d("MainAppStructure", "Navigating to Home because authenticated and currently on Auth.")
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Home.route) { inclusive = true }
+                navController.navigate(BottomNavItem.Home.route) {
+                    popUpTo(BottomNavItem.Home.route) { inclusive = true }
                     launchSingleTop = true
                 }
-            } else if (currentRoute == null && startDestination == Screen.Home.route) {
+            } else if (currentRoute == null && startDestination == BottomNavItem.Home.route) {
                 Log.d("MainAppStructure", "Initial state is authenticated, ensuring Home is displayed.")
             }
         } else {
-            if (currentRoute != Screen.Auth.route) {
+            if (currentRoute != "auth") {
                 Log.d("MainAppStructure", "Navigating to Auth because not authenticated and not on Auth screen.")
-                navController.navigate(Screen.Auth.route) {
-                    popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                navController.navigate("auth") {
+                    popUpTo(navController.graph.findStartDestination().id)
                     launchSingleTop = true
                 }
-            } else if (currentRoute == null && startDestination == Screen.Auth.route) {
+            } else if (currentRoute == null && startDestination == "auth") {
                 Log.d("MainAppStructure", "Initial state is unauthenticated, ensuring Auth is displayed.")
             }
         }
@@ -169,21 +173,21 @@ fun MainAppStructure(
 
     Scaffold(
         topBar = {
-            if (currentRoute != Screen.Auth.route) {
+            if (currentRoute != "auth") {
                 TopAppBar(
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = when (currentRoute) {
-                                    Screen.Home.route -> stringResource(id = R.string.bottom_nav_home)
-                                    Screen.Rooms.route -> stringResource(id = R.string.bottom_nav_rooms)
-                                    Screen.Diary.route -> stringResource(id = R.string.bottom_nav_diary)
-                                    Screen.Settings.route -> stringResource(id = R.string.bottom_nav_settings)
+                                    BottomNavItem.Home.route -> stringResource(id = R.string.bottom_nav_home)
+                                    BottomNavItem.Rooms.route -> stringResource(id = R.string.bottom_nav_rooms)
+                                    BottomNavItem.Diary.route -> stringResource(id = R.string.bottom_nav_diary)
+                                    BottomNavItem.Settings.route -> stringResource(id = R.string.bottom_nav_settings)
                                     else -> ""
                                 },
                                 maxLines = 1
                             )
-                            if (currentRoute == Screen.Home.route) {
+                            if (currentRoute == BottomNavItem.Home.route) {
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Image(
                                     painter = painterResource(id = R.drawable.growpal_logo),
@@ -202,8 +206,8 @@ fun MainAppStructure(
                 NavigationBar {
                     items.forEach { screen ->
                         NavigationBarItem(
-                            icon = { Icon(screen.icon, contentDescription = stringResource(id = screen.labelResId)) },
-                            label = { Text(stringResource(id = screen.labelResId)) },
+                            icon = { Icon(screen.icon, contentDescription = screen.label) },
+                            label = { Text(screen.label) },
                             selected = currentRoute == screen.route,
                             onClick = {
                                 Log.d("MainAppStructure", "Bottom nav clicked: ${screen.route}")
@@ -228,7 +232,7 @@ fun MainAppStructure(
             startDestination = startDestination,
             modifier = Modifier.padding(innerPadding).fillMaxSize()
         ) {
-            composable(Screen.Auth.route) {
+            composable("auth") {
                 Log.d("MainAppStructure", "Rendering AuthScreen")
                 var snackbarHostState = remember { SnackbarHostState() }
 
@@ -301,25 +305,4 @@ fun PlaceholderScreen(name: String, navController: NavHostController) {
         }
     }
 }
-
-@Composable
-fun BottomNavigationBar(
-    navController: NavHostController,
-    items: List<Screen>,
-    currentRoute: String?
-) {
-    NavigationBar {
-        items.forEach { item ->
-            NavigationBarItem(
-                icon = { Icon(item.icon, contentDescription = null) },
-                label = { Text(stringResource(id = item.labelResId)) },
-                selected = currentRoute == item.route,
-                onClick = {}
-            )
-        }
-    }
-}
-
-// --- Preview ---
-
 

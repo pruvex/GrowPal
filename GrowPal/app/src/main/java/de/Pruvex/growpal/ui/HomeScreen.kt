@@ -12,18 +12,30 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.Pruvex.growpal.R
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import de.Pruvex.growpal.ui.home.CurrentRoomCard
+import de.Pruvex.growpal.ui.home.ActivePlantsCard
+import de.Pruvex.growpal.ui.home.TodosTodayCard
+import de.Pruvex.growpal.ui.home.QuickAccessCard
+
 @Composable
 fun HomeScreen() {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(top = 16.dp, bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(32.dp))
-        Text(
-            text = stringResource(id = R.string.welcome_headline),
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        // Weitere Home-Inhalte...
+        CurrentRoomCard()
+        ActivePlantsCard()
+        TodosTodayCard()
+        QuickAccessCard()
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
