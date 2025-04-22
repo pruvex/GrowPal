@@ -54,6 +54,10 @@ import de.Pruvex.growpal.ui.settings.SettingsScreen
 import de.Pruvex.growpal.ui.theme.GrowPalTheme
 import de.Pruvex.growpal.util.LocaleHelper
 import androidx.compose.ui.tooling.preview.Preview
+import de.Pruvex.growpal.data.UserPreferences
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import com.google.firebase.auth.FirebaseAuth
 
 // Definition der Screens für die Navigation (unverändert)
 
@@ -66,46 +70,35 @@ class MainActivity : AppCompatActivity() {
     // --- KEINE attachBaseContext Methode hier! ---
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // --- Systemdienste prüfen und loggen ---
-        try {
-            val pm = packageManager
-            Log.d("MainActivity", "PackageManager verfügbar: ${pm != null}")
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Fehler beim Zugriff auf PackageManager", e)
-        }
-        try {
-            val bluetooth = getSystemService(Context.BLUETOOTH_SERVICE)
-            Log.d("MainActivity", "Bluetooth-Service verfügbar: ${bluetooth != null}")
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Fehler beim Zugriff auf Bluetooth-Service", e)
-        }
-        try {
-            val connectivity = getSystemService(Context.CONNECTIVITY_SERVICE)
-            Log.d("MainActivity", "Connectivity-Service verfügbar: ${connectivity != null}")
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Fehler beim Zugriff auf Connectivity-Service", e)
-        }
-        try {
-            val binder = this as? android.os.Binder
-            Log.d("MainActivity", "Binder-Objekt verfügbar: ${binder != null}")
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Fehler beim Binder-Check", e)
-        }
-        // --- Ende Systemdienste-Check ---
-
         // Sprache beim App-Start anwenden (via AppCompatDelegate)
         LocaleHelper.updateAppLocale(LocaleHelper.getPersistedLocale(this))
-        Log.d("MainActivity", "Initial Locale set via AppCompatDelegate in onCreate")
-
         super.onCreate(savedInstanceState)
-        Log.d("MainActivity", "onCreate called after super.onCreate")
-
-        // Splashscreen installieren
         installSplashScreen()
-
-        Log.d("MainActivity", "Current config in onCreate after initial setup: ${resources.configuration.locales.get(0)}") // .get(0) für neuere APIs
-
         setTheme(R.style.Theme_GrowPal)
+        // DataStore: Prüfe, ob stay_logged_in aktiv ist
+        var startDestination = "auth"
+        runBlocking {
+            val stayLoggedIn = UserPreferences.stayLoggedInFlow(this@MainActivity).first()
+            val firebaseUser = FirebaseAuth.getInstance().currentUser
+            // Top-Dev: Robust gegen Build/ProGuard-Probleme – Singleton direkt, Fallback auf String
+            try {
+                val homeRoute = BottomNavItem.Home.route
+                startDestination = if (stayLoggedIn && firebaseUser != null && !homeRoute.isNullOrEmpty()) {
+                    homeRoute
+                } else {
+                    "auth"
+                }
+            } catch (e: Exception) {
+                Log.e("MainActivity", "BottomNavItem.Home.route nicht verfügbar (Build/ProGuard-Fehler?)", e)
+                startDestination = "home" // Fallback auf String-Routenname
+            }
+            // Fallback: falls aus irgendeinem Grund startDestination leer oder null ist
+            if (startDestination.isNullOrBlank() ||
+                (startDestination != "auth" && BottomNavItem.items.none { it.route == startDestination })) {
+                Log.e("MainActivity", "Ungültige startDestination: $startDestination, fallback auf 'auth'")
+                startDestination = "auth"
+            }
+        }
         setContent {
             val authState by authViewModel.authState.collectAsState()
             val navController = rememberNavController()
@@ -113,60 +106,81 @@ class MainActivity : AppCompatActivity() {
             // Navigation nach erfolgreichem Login, aber nur wenn wir nicht schon auf Home sind
             LaunchedEffect(authState) {
                 if (authState is AuthState.Success) {
-                    if (navController.currentDestination?.route != BottomNavItem.Home.route) {
-                        navController.navigate(BottomNavItem.Home.route) {
-                            popUpTo(BottomNavItem.Home.route) { inclusive = true }
+                    val homeRoute = try {
+                        BottomNavItem.Home.route
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "BottomNavItem.Home.route nicht verfügbar", e)
+                        "auth"
+                    }
+                    if (navController.currentDestination?.route != homeRoute && !homeRoute.isNullOrBlank()) {
+                        navController.navigate(homeRoute) {
+                            popUpTo(homeRoute) { inclusive = true }
                         }
                     }
                 }
             }
 
-            MainAppStructure(navController, authViewModel, authState, this)
+            MainAppStructure(navController, authViewModel, authState, this, startDestination)
         }
     }
 }
 
 
+/**
+ * Hauptstruktur der App mit Navigation und TopBar/BottomBar.
+ * Zeigt AuthScreen, solange nicht eingeloggt.
+ */
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun MainAppStructure(
     navController: NavHostController,
     authViewModel: AuthViewModel,
     authState: AuthState,
-    context: Context // Context für recreate benötigt
+    context: Context, // Context für recreate benötigt
+    startDestination: String
 ) {
-    val items = BottomNavItem.items
+    val items = try {
+        BottomNavItem.items
+    } catch (e: Exception) {
+        Log.e("MainAppStructure", "BottomNavItem.items nicht verfügbar", e)
+        emptyList()
+    }
+
     var showBottomBar by remember { mutableStateOf(false) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val startDestination = if (authState is AuthState.Success) BottomNavItem.Home.route else "auth"
+    val safeHomeRoute = try {
+        BottomNavItem.Home.route
+    } catch (e: Exception) {
+        Log.e("MainAppStructure", "BottomNavItem.Home.route nicht verfügbar", e)
+        "auth"
+    }
+    val startDestination = if (authState is AuthState.Success) safeHomeRoute else "auth"
 
     LaunchedEffect(currentRoute) {
         showBottomBar = items.any { it.route == currentRoute }
-        Log.d("MainAppStructure", "Current route changed: $currentRoute, Show bottom bar: $showBottomBar")
     }
 
     LaunchedEffect(authState, currentRoute) {
-        Log.d("MainAppStructure", "AuthState or Route changed. IsAuthenticated: ${authState is AuthState.Success}, CurrentRoute: $currentRoute")
+        val homeRoute = try {
+            BottomNavItem.Home.route
+        } catch (e: Exception) {
+            Log.e("MainAppStructure", "BottomNavItem.Home.route nicht verfügbar", e)
+            "auth"
+        }
         if (authState is AuthState.Success) {
             if (currentRoute == "auth") {
-                Log.d("MainAppStructure", "Navigating to Home because authenticated and currently on Auth.")
-                navController.navigate(BottomNavItem.Home.route) {
-                    popUpTo(BottomNavItem.Home.route) { inclusive = true }
+                navController.navigate(homeRoute) {
+                    popUpTo(homeRoute) { inclusive = true }
                     launchSingleTop = true
                 }
-            } else if (currentRoute == null && startDestination == BottomNavItem.Home.route) {
-                Log.d("MainAppStructure", "Initial state is authenticated, ensuring Home is displayed.")
             }
         } else {
             if (currentRoute != "auth") {
-                Log.d("MainAppStructure", "Navigating to Auth because not authenticated and not on Auth screen.")
                 navController.navigate("auth") {
                     popUpTo(navController.graph.findStartDestination().id)
                     launchSingleTop = true
                 }
-            } else if (currentRoute == null && startDestination == "auth") {
-                Log.d("MainAppStructure", "Initial state is unauthenticated, ensuring Auth is displayed.")
             }
         }
     }
@@ -247,9 +261,9 @@ fun MainAppStructure(
                     snackbarHost = { SnackbarHost(snackbarHostState) }
                 ) { padding ->
                     AuthScreen(
-                        onLoginClick = { email, password ->
+                        onLoginClick = { email, password, stayLoggedIn, context ->
                             Log.d("MainAppStructure", "AuthScreen: onLoginClick called")
-                            authViewModel.login(email, password)
+                            authViewModel.login(email, password, stayLoggedIn, context)
                         },
                         onRegisterClick = { email, password ->
                             Log.d("MainAppStructure", "AuthScreen: onRegisterClick called")
@@ -272,7 +286,7 @@ fun MainAppStructure(
             composable(BottomNavItem.Settings.route) {
                 SettingsScreen(
                     onLogout = {
-                        authViewModel.logout()
+                        authViewModel.logout(context)
                     },
                     onLanguageSelected = { langCode ->
                         LocaleHelper.setLocale(context, langCode)

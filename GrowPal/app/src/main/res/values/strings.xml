@@ -31,6 +31,8 @@
 
     <!-- General -->
     <string name="error_generic">An error occurred.</string>
-
-    <string name="welcome_headline">GrowPal ist bereit.</string>
+    <string name="stay_logged_in">Stay logged in</string>
+    <string name="welcome_headline">GrowPal is ready.</string>
+    <string name="show_password">Passwort anzeigen</string>
+    <string name="hide_password">Passwort verbergen</string>
 </resources>

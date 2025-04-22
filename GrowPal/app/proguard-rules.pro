@@ -1,4 +1,8 @@
 # Add project specific ProGuard rules here.
+
+# Schutz für BottomNavItem: Verhindert, dass ProGuard die sealed class und ihre Objekte strippt
+-keep class de.Pruvex.growpal.navigation.BottomNavItem { *; }
+
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.
 #

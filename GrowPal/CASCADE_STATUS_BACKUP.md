@@ -1,5 +1,12 @@
 # Cascade Status Backup - 2025-04-22 00:53
 
+# Backup Status
+
+- Backup GrowPal_Backup_2025-04-22.tar.gz am 2025-04-22 erstellt
+- Crash-Fix für BottomNavItem.Home Singleton
+- ProGuard-Regel hinzugefügt
+- Lint/Übersetzungsproblem stay_logged_in behoben
+
 ## Aktuelles Problem
 
 UI/Build-Probleme: Fehlende oder fehlerhafte Modifier-Imports, falsche onClick-Lambdas (null statt {}), fehlende String-Ressourcen und experimentelle Material3-Warnungen verhinderten einen erfolgreichen Build und eine konsistente UI.

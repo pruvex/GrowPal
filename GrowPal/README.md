@@ -1,5 +1,13 @@
 # GrowPal
 
+**Wichtige Hinweise (Stand: 2025-04-22)**
+
+- Komplettes Projekt-Backup: `GrowPal_Backup_2025-04-22.tar.gz`
+- Crash beim App-Start (BottomNavItem.Home.route) wurde robust gefixt (Singleton-Zugriff + ProGuard-Regel)
+- ProGuard-Konfiguration schützt jetzt die sealed class `BottomNavItem`
+- Englische Übersetzung für `stay_logged_in` ergänzt (Lint-Fehler beseitigt)
+
+
 GrowPal ist eine modulare Android-App für Pflanzenliebhaber, entwickelt mit Kotlin, Jetpack Compose und MVVM-Architektur. 
 
 **Features:**

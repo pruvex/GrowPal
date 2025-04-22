@@ -32,4 +32,5 @@
     <!-- General -->
     <string name="error_generic">An error occurred.</string>
 
+    <string name="stay_logged_in">Stay logged in</string>
 </resources>

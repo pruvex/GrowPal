@@ -1,9 +1,9 @@
 // D:\Android\Projekte\GrowPal\GrowPal\app\build.gradle.kts
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.google.services)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -53,6 +53,7 @@ dependencies {
     // Compose Bibliotheken
     implementation(platform(libs.androidx.compose.bom)) // Wichtig: Definiert Compose-Versionen
     implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.text)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
@@ -66,9 +67,10 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)    // <- Diese Zeile ist jetzt hier drin!
 
     // Firebase
-    implementation(platform(libs.firebase.bom)) // Wichtig: Definiert Firebase-Versionen
-    implementation(libs.firebase.auth)
-    implementation(libs.firebase.firestore)
+    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("androidx.datastore:datastore-preferences:1.0.0") // DataStore für Stay Logged In
 
     // Test Bibliotheken
     testImplementation(libs.junit)

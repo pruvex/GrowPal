@@ -24,7 +24,11 @@ Dieses Dokument trackt die aktiven Aufgaben, den Backlog und erreichte Meilenste
 *   [ ] Kamera-/Galerie-Zugriff für Foto-Upload (Speicherung in Firebase Storage).
 *   [ ] Fotos in Einträgen anzeigen.
 
-## Modul 4: Kalender & Aufgaben / Benachrichtigungen (MVP)
+## Modul 4: Kalender & Aufgaben / Tasks
+*   [x] Komplettes Projekt-Backup (GrowPal_Backup_2025-04-22.tar.gz)
+*   [x] Crash-Fix für BottomNavItem.Home.route
+*   [x] ProGuard-Regel für BottomNavItem
+*   [x] Übersetzungs-Fix für stay_logged_in (Lint)
 *   [ ] Datenmodell für Kalenderereignisse (Nutzer-/Pflanzenbezug, Datum, Typ, Beschreibung).
 *   [ ] UI-Screen für einfache Kalenderansicht (Monat/Woche).
 *   [ ] UI-Screen zum manuellen Hinzufügen von Ereignissen (Gießen, Düngen).
