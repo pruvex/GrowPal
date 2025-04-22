@@ -1,0 +1,29 @@
+name: Cascade Status Backup
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  backup-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "cascade-bot"
+          git config --global user.email "cascade-bot@users.noreply.github.com"
+
+      - name: Append Backup Timestamp to Status
+        run: |
+          echo "\nBackup durchgeführt am $(date -u "+%Y-%m-%d %H:%M:%S UTC")" >> CASCADE_STATUS_BACKUP.md
+
+      - name: Commit and push status backup
+        run: |
+          git add CASCADE_STATUS_BACKUP.md
+          git commit -m "Automatisches Status-Backup: $(date -u "+%Y-%m-%d %H:%M:%S UTC")" || echo "Nichts zu committen"
+          git push

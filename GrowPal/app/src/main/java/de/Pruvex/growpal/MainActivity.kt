@@ -36,7 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import de.Pruvex.growpal.ui.HomeScreen
 import androidx.compose.ui.unit.dp // Import für dp hinzugefügt
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen // Import für Splashscreen hinzugefügt
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -48,6 +48,7 @@ import de.Pruvex.growpal.ui.auth.AuthState
 import de.Pruvex.growpal.ui.settings.SettingsScreen
 import de.Pruvex.growpal.ui.theme.GrowPalTheme
 import de.Pruvex.growpal.util.LocaleHelper
+import androidx.compose.ui.tooling.preview.Preview
 
 // Definition der Screens für die Navigation (unverändert)
 sealed class Screen(val route: String, val labelResId: Int, val icon: ImageVector) {
@@ -105,6 +106,7 @@ class MainActivity : AppCompatActivity() {
 
         Log.d("MainActivity", "Current config in onCreate after initial setup: ${resources.configuration.locales.get(0)}") // .get(0) für neuere APIs
 
+        setTheme(R.style.Theme_GrowPal)
         setContent {
             val authState by authViewModel.authState.collectAsState()
             val navController = rememberNavController()

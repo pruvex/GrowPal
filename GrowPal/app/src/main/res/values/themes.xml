@@ -2,4 +2,8 @@
 <resources>
 
     <style name="Theme.GrowPal" parent="Theme.AppCompat.Light" />
+
+    <style name="Theme.SplashScreen" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
 </resources>

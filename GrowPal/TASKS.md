@@ -3,7 +3,7 @@ Aufgabenliste: GrowPal
 Dieses Dokument trackt die aktiven Aufgaben, den Backlog und erreichte Meilensteine, basierend auf einer modularen Struktur.
 
 ## Modul 1: App-Struktur und Grundeinstellungen (MVP)
-*   [ ] Android Studio Projekt erstellen (Kotlin, Jetpack Compose).
+*   [x] Android Studio Projekt erstellen (Kotlin, Jetpack Compose).
 *   [ ] Grundlegende Navigation implementieren (Untere Navigationsleiste: Home, Räume, Tagebuch, Einstellungen).
 *   [ ] Startbildschirm (Home) mit Platzhaltern für Module erstellen.
 *   [ ] Firebase-Projekt einrichten (Auth: E-Mail/Passwort; Firestore-DB).
