@@ -40,11 +40,7 @@ fun SettingsScreen(
                 .padding(top = 8.dp, bottom = 16.dp)
                 .align(Alignment.CenterHorizontally)
         )
-        Text(
-            text = stringResource(id = R.string.settings_title),
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 16.dp)
-        )
+
 
         // Sprachauswahl Sektion
         Text(

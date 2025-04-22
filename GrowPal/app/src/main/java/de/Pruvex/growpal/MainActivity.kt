@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
@@ -51,13 +52,7 @@ import de.Pruvex.growpal.util.LocaleHelper
 import androidx.compose.ui.tooling.preview.Preview
 
 // Definition der Screens für die Navigation (unverändert)
-sealed class Screen(val route: String, val labelResId: Int, val icon: ImageVector) {
-    object Auth : Screen("auth", R.string.app_name, Icons.Filled.AccountCircle)
-    object Home : Screen("home", R.string.bottom_nav_home, Icons.Filled.Home)
-    object Rooms : Screen("rooms", R.string.bottom_nav_rooms, Icons.Filled.AccountCircle)
-    object Diary : Screen("diary", R.string.bottom_nav_diary, Icons.Filled.DateRange)
-    object Settings : Screen("settings", R.string.bottom_nav_settings, Icons.Filled.Settings)
-}
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -122,9 +117,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            GrowPalTheme {
-                MainAppStructure(navController, authViewModel, authState, this)
-            }
+            MainAppStructure(navController, authViewModel, authState, this)
         }
     }
 }
@@ -176,20 +169,33 @@ fun MainAppStructure(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Kleines Logo links neben dem Titel
-                        Image(
-                            painter = painterResource(id = R.drawable.growpal_logo),
-                            contentDescription = stringResource(id = R.string.app_name),
-                            modifier = Modifier.size(32.dp).padding(end = 8.dp)
-                        )
-                        Text(text = stringResource(id = R.string.app_name))
-                    }
-                },
-                navigationIcon = {}
-            )
+            if (currentRoute != Screen.Auth.route) {
+                TopAppBar(
+                    title = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = when (currentRoute) {
+                                    Screen.Home.route -> stringResource(id = R.string.bottom_nav_home)
+                                    Screen.Rooms.route -> stringResource(id = R.string.bottom_nav_rooms)
+                                    Screen.Diary.route -> stringResource(id = R.string.bottom_nav_diary)
+                                    Screen.Settings.route -> stringResource(id = R.string.bottom_nav_settings)
+                                    else -> ""
+                                },
+                                maxLines = 1
+                            )
+                            if (currentRoute == Screen.Home.route) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Image(
+                                    painter = painterResource(id = R.drawable.growpal_logo),
+                                    contentDescription = stringResource(id = R.string.app_name),
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
+                        }
+                    },
+                    navigationIcon = {}
+                )
+            }
         },
         bottomBar = {
             if (showBottomBar) {
@@ -250,31 +256,24 @@ fun MainAppStructure(
                 }
             }
 
-            composable(Screen.Home.route) {
-                Log.d("MainAppStructure", "Rendering HomeScreen")
+            composable(BottomNavItem.Home.route) {
                 HomeScreen()
             }
-            composable(Screen.Rooms.route) {
-                Log.d("MainAppStructure", "Rendering PlaceholderScreen for Rooms")
-                PlaceholderScreen("Rooms", navController)
+            composable(BottomNavItem.Rooms.route) {
+                RoomsScreen()
             }
-            composable(Screen.Diary.route) {
-                Log.d("MainAppStructure", "Rendering PlaceholderScreen for Diary")
-                PlaceholderScreen("Diary", navController)
+            composable(BottomNavItem.Diary.route) {
+                DiaryScreen()
             }
-            composable(Screen.Settings.route) {
-                Log.d("MainAppStructure", "Rendering SettingsScreen")
+            composable(BottomNavItem.Settings.route) {
                 SettingsScreen(
                     onLogout = {
-                        Log.d("MainAppStructure", "SettingsScreen: onLogout called")
                         authViewModel.logout()
                     },
                     onLanguageSelected = { langCode ->
-                        Log.d("MainAppStructure", "SettingsScreen: onLanguageSelected called with $langCode")
                         LocaleHelper.setLocale(context, langCode)
                         val currentActivity = context as? Activity
                         currentActivity?.recreate()
-                        Log.d("MainAppStructure", "Activity recreated after language change.")
                     }
                 )
             }
@@ -282,28 +281,6 @@ fun MainAppStructure(
     }
 }
 
-@Composable
-fun HomeScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(32.dp))
-        // Großes, zentriertes Logo als Header
-        Image(
-            painter = painterResource(id = R.drawable.growpal_logo),
-            contentDescription = stringResource(id = R.string.app_name),
-            modifier = Modifier.size(160.dp)
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = stringResource(id = R.string.welcome_headline),
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        // Weitere Home-Inhalte...
-    }
-}
 
 // Platzhalter (unverändert)
 @Composable
@@ -345,25 +322,4 @@ fun BottomNavigationBar(
 
 // --- Preview ---
 
-@Preview(showBackground = true, locale = "de")
-@Composable
-fun DefaultPreview() {
-    GrowPalTheme {
-        val navController = rememberNavController()
-        val previewAuthViewModel = AuthViewModel() // Annahme: ViewModel hat leeren Konstruktor für Preview
-        MainAppStructure(
-            navController,
-            previewAuthViewModel,
-            AuthState.Success(null), // Für Preview: userId ist null
-            androidx.compose.ui.platform.LocalContext.current
-        )
-    }
-}
 
-@Preview(showBackground = true, locale = "en")
-@Composable
-fun AuthScreenPreview() {
-    GrowPalTheme {
-        AuthScreen(onLoginClick = {_,_ -> Log.d("Preview", "Login clicked") }, onRegisterClick = {_,_ -> Log.d("Preview", "Register clicked") })
-    }
-}

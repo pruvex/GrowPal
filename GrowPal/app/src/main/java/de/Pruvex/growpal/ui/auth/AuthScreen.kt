@@ -99,7 +99,5 @@ fun AuthScreen(
 @Preview(showBackground = true, name = "Authentication Screen")
 @Composable
 fun AuthScreenPreview() {
-    GrowPalTheme {
-        AuthScreen(onLoginClick = { _, _ -> }, onRegisterClick = { _, _ -> })
-    }
+    AuthScreen(onLoginClick = { _, _ -> }, onRegisterClick = { _, _ -> })
 }

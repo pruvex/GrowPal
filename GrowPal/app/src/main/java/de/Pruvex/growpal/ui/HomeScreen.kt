@@ -19,13 +19,6 @@ fun HomeScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(32.dp))
-        // Großes, zentriertes Logo als Header
-        Image(
-            painter = painterResource(id = R.drawable.growpal_logo),
-            contentDescription = stringResource(id = R.string.app_name),
-            modifier = Modifier.size(160.dp)
-        )
-        Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = stringResource(id = R.string.welcome_headline),
             style = MaterialTheme.typography.headlineMedium,
