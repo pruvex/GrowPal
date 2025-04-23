@@ -1,25 +1,25 @@
-# Cascade Status Backup - 2025-04-22 00:53
+# Cascade Status Backup - 2025-04-23 17:00
 
 # Backup Status
 
-- Backup GrowPal_Backup_2025-04-22.tar.gz am 2025-04-22 erstellt
-- Crash-Fix für BottomNavItem.Home Singleton
-- ProGuard-Regel hinzugefügt
-- Lint/Übersetzungsproblem stay_logged_in behoben
+- Build und Lint komplett fehlerfrei
+- Alle Übersetzungen (en/de) ergänzt (welcome_headline, show_password, hide_password)
+- API-Level-Checks in PinStorage und LocaleHelper
+- Import-Probleme und Duplicate Classes gelöst
+- Projekt stabil und bereit für neue Features
 
-## Aktuelles Problem
+## Aktueller Stand
 
-UI/Build-Probleme: Fehlende oder fehlerhafte Modifier-Imports, falsche onClick-Lambdas (null statt {}), fehlende String-Ressourcen und experimentelle Material3-Warnungen verhinderten einen erfolgreichen Build und eine konsistente UI.
+Alle Build- und Lint-Probleme gelöst. App baut fehlerfrei, alle Ressourcen und Übersetzungen sind vorhanden. Codebasis Compose- und Firebase-konform. Keine offenen Fehler.
 
 ## Bereits unternommene Schritte
-- Alle Modifier- und Import-Probleme automatisiert behoben
-- onClick = null durch onClick = {} ersetzt (Buttons, NavigationBarItem, TopAppBar)
-- Fehlende String-Ressourcen ergänzt (z.B. welcome_headline)
-- Opt-In für ExperimentalMaterial3Api gesetzt, um Warnungen zu unterdrücken
-- Build erfolgreich durchgeführt, App startet und zeigt das neue UI/Logo korrekt an
+- API-Level-Checks und Imports ergänzt
+- Alle fehlenden Übersetzungen in values-en/strings.xml ergänzt
+- Lint- und Build-Fehler systematisch beseitigt
+- Projektstruktur und Abhängigkeiten modernisiert
 
 ## Nächster Schritt
-- Optional: Code weiter testen und weitere Features (z.B. Level-Auswahl, Splashscreen) implementieren
+- Optional: Weitere Features (z.B. Level-Auswahl, Splashscreen) implementieren oder Release-Build testen
 - Backup in Git anlegen (Index und Commit)
 
-**Modul:** MainActivity, UI-Komponenten, Ressourcen
+**Modul:** Übersetzungen, Buildsystem, MainActivity, LocaleHelper, PinStorage

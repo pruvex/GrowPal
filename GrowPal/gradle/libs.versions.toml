@@ -2,7 +2,7 @@
 
 [versions]
 # Android & Kotlin (Beispiele, passe sie an deine Versionen an, falls nötig)
-agp = "8.9.1"
+agp = "8.9.2"
 kotlin = "1.9.23"
 kotlinComposeCompiler = "1.5.11"
 googleServices = "4.4.1"

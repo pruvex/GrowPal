@@ -107,7 +107,12 @@ object LocaleHelper {
         val config: Configuration = context.resources.configuration
         config.setLocale(locale)
         config.setLayoutDirection(locale)
-        Log.d(TAG, "Wrapping context with locale: $validLanguageCode | Context-Locale: ${config.locales.get(0).toLanguageTag()}")
+        val currentLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            config.locales.get(0)
+        } else {
+            config.locale
+        }
+        Log.d(TAG, "Wrapping context with locale: $validLanguageCode | Context-Locale: ${currentLocale.toLanguageTag()}")
         logCurrentLocale(context, "wrapContext")
         return context.createConfigurationContext(config)
     }

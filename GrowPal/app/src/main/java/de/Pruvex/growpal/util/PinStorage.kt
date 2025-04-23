@@ -8,6 +8,7 @@ import java.nio.charset.Charset
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
+import android.os.Build
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
@@ -29,16 +30,20 @@ object PinStorage {
                 KeyProperties.KEY_ALGORITHM_AES,
                 ANDROID_KEYSTORE
             )
-            val keyGenParameterSpec = KeyGenParameterSpec.Builder(
-                KEY_ALIAS,
-                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-            )
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .setUserAuthenticationRequired(false)
-                .build()
-            keyGenerator.init(keyGenParameterSpec)
-            keyGenerator.generateKey()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val keyGenParameterSpec = KeyGenParameterSpec.Builder(
+                    KEY_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+                )
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setUserAuthenticationRequired(false)
+                    .build()
+                keyGenerator.init(keyGenParameterSpec)
+                keyGenerator.generateKey()
+            } else {
+                throw UnsupportedOperationException("Key generation requires at least API 23 (Marshmallow). Current device API: ${Build.VERSION.SDK_INT}")
+            }
         }
     }
 

@@ -19,7 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import de.Pruvex.growpal.ui.home.CurrentRoomCard
 import de.Pruvex.growpal.ui.home.ActivePlantsCard
-import de.Pruvex.growpal.ui.home.TodosTodayCard
+
 import de.Pruvex.growpal.ui.home.QuickAccessCard
 
 @Composable
@@ -33,7 +33,6 @@ fun HomeScreen() {
     ) {
         CurrentRoomCard()
         ActivePlantsCard()
-        TodosTodayCard()
         QuickAccessCard()
         Spacer(modifier = Modifier.height(16.dp))
     }
